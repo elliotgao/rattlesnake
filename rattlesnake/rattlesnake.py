@@ -132,14 +132,16 @@ class Rattlesnake(object):
                 rhos = (np.sqrt(np.repeat(rho, p2)) * np.random.choice([-1., 1.], p2)).reshape((p2, 1))
                 S = (np.ones((p2, p2)) * rhos * rhos.T + (1 - rho) * np.eye(p2)) * (radii[i] * radii[i])
                 self.betas[i] = np.random.multivariate_normal(np.repeat(0., p2), S, p1) * self.rates_betas[i]
-                tempZ = np.matmul(Z, self.betas[i])
-                temp_std = np.std(tempZ, axis=0).reshape((1, self.betas[i].shape[1]))
-                temp_std[np.abs(temp_std) < 1e-6] = 1.0
 
-                self.betas[i] = self.betas[i] / temp_std
-                if i < len(self.betas) - 1:
-                    Z, _, _ = self.__get_spline__(np.matmul(Z, self.betas[i]), self.alphas[i])
-                    Z = np.append(ones, Z, axis=1)
+                if if_normalization:
+                    tempZ = np.matmul(Z, self.betas[i])
+                    temp_std = np.std(tempZ, axis=0).reshape((1, self.betas[i].shape[1]))
+                    temp_std[np.abs(temp_std) < 1e-6] = 1.0
+
+                    self.betas[i] = self.betas[i] / temp_std
+                    if i < len(self.betas) - 1:
+                        Z, _, _ = self.__get_spline__(np.matmul(Z, self.betas[i]), self.alphas[i])
+                        Z = np.append(ones, Z, axis=1)
 
         for i in range(len(self.alphas)):
             ind = np.not_equal(self.rates_alphas[i], 0.0)
